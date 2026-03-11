@@ -576,8 +576,7 @@ window.addEventListener("resize", function(){
 
 buildQRCode();
 buildQuiz();
-</script>
-  function salvaRisultato(nome, azienda, punteggio, esito) {
+function salvaRisultato(nome, azienda, punteggio, esito) {
 
 fetch("https://script.google.com/macros/s/AKfycbwdgB2ouk3YTc2-r1nScBnue6yh4hUoua-XEJCQq0-vLb-o8BQPcteN3ZZY1hlunhEl/exec", {
 method: "POST",
@@ -593,10 +592,11 @@ headers: {
 });
 
 }
-  
+</script>
  
-
 </body>
-
 </html>
+
+
+
 
