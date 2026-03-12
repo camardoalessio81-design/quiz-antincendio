@@ -2,358 +2,374 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quiz Antincendio</title>
-
 <style>
-
 body{
-font-family:Arial;
-background:#0f1a2b;
-color:white;
-text-align:center;
-padding:40px;
+  font-family:Arial,sans-serif;
+  background:#0f1a2b;
+  color:#fff;
+  text-align:center;
+  padding:30px 15px;
+  margin:0;
 }
-
 .container{
-max-width:700px;
-margin:auto;
-background:#16253f;
-padding:30px;
-border-radius:12px;
+  max-width:820px;
+  margin:auto;
+  background:#16253f;
+  padding:30px;
+  border-radius:14px;
 }
-
 input{
-width:80%;
-padding:10px;
-margin:10px;
-border-radius:6px;
-border:none;
+  width:80%;
+  max-width:420px;
+  padding:12px;
+  margin:10px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
 }
-
 button{
-padding:12px 25px;
-margin:10px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-size:16px;
+  padding:12px 22px;
+  margin:8px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:bold;
 }
-
-.start{
-background:#ff6b00;
-color:white;
-}
-
-.admin{
-background:#f5a300;
-}
-
+.start{background:#ff6b00;color:#fff;}
+.admin{background:#f5a300;color:#111;}
+.secondary{background:#29456f;color:#fff;}
 .timer{
-font-size:26px;
-margin-top:10px;
-color:#ffc107;
+  font-size:30px;
+  margin:18px 0;
+  color:#ffc107;
+  font-weight:bold;
 }
-
+.question-box{
+  margin-top:20px;
+  background:#203556;
+  padding:20px;
+  border-radius:12px;
+}
 .question{
-font-size:22px;
-margin-top:20px;
+  font-size:26px;
+  margin-bottom:16px;
 }
-
 .answer{
-display:block;
-width:100%;
-background:#29456f;
-color:white;
-margin:10px 0;
-padding:12px;
-border:none;
-border-radius:8px;
-cursor:pointer;
+  display:block;
+  width:100%;
+  background:#29456f;
+  color:#fff;
+  margin:10px 0;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  text-align:left;
 }
-
-.answer:disabled{
-cursor:default;
-opacity:1;
-}
-
-.correct{
-background:#1b5e20 !important;
-}
-
-.wrong{
-background:#8e0000 !important;
-}
-
+.answer:hover{background:#355887;}
+.answer:disabled{cursor:default;opacity:1;}
+.correct{background:#1b5e20 !important;}
+.wrong{background:#8e0000 !important;}
 .feedback{
-margin-top:15px;
-font-size:18px;
+  margin-top:15px;
+  font-size:18px;
+  background:#1c3150;
+  padding:14px;
+  border-radius:10px;
 }
-
+.result{
+  margin-top:20px;
+  font-size:22px;
+  line-height:1.6;
+}
+.hidden{display:none;}
 table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  background:#1a2d4a;
 }
-
-td,th{
-border:1px solid #29456f;
-padding:10px;
+th,td{
+  border:1px solid #355887;
+  padding:10px;
+  text-align:left;
+  font-size:14px;
 }
-
+th{background:#29456f;}
+.small{font-size:14px;color:#d0d9e6;}
+#qr{
+  background:#fff;
+  padding:8px;
+  border-radius:10px;
+}
 </style>
-
 </head>
-
 <body>
 
 <div class="container">
+  <h1>🔥 Quiz Antincendio</h1>
 
-<h1>🔥 Quiz Antincendio</h1>
+  <input id="nome" placeholder="Nome e Cognome">
+  <br>
+  <input id="azienda" placeholder="Azienda">
 
-<input id="nome" placeholder="Nome e Cognome">
-<br>
+  <div class="timer" id="timer">30:00</div>
 
-<input id="azienda" placeholder="Azienda">
+  <button class="start" onclick="startQuiz()">INIZIA QUIZ</button>
+  <button class="admin" onclick="adminLogin()">ACCESSO ADMIN</button>
 
-<div class="timer" id="timer">30:00</div>
+  <div style="margin-top:16px;">
+    <img id="qr" width="200" alt="QR Code">
+    <p class="small">Scansiona per aprire il quiz</p>
+  </div>
 
-<button class="start" onclick="startQuiz()">INIZIA QUIZ</button>
+  <div id="quiz"></div>
+  <div id="result" class="result"></div>
 
-<button class="admin" onclick="toggleAdmin()">PANNELLO ADMIN</button>
+  <div id="adminPanel" class="hidden">
+    <h2>Risultati salvati</h2>
+    <button class="secondary" onclick="closeAdmin()">CHIUDI ADMIN</button>
+    <button class="admin" onclick="clearResults()">CANCELLA RISULTATI</button>
+    <div id="adminContent"></div>
+  </div>
 
-<div id="quiz"></div>
-
-<div id="result"></div>
-
-<div id="admin" style="display:none"></div>
-
+  <p class="small">Area riservata docente</p>
 </div>
 
 <script>
+document.getElementById("qr").src =
+  "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(location.href);
 
-const PASS=70
+var ADMIN_PASSWORD = "1234";
+var PASS = 70;
+var STORAGE = "quiz_antincendio_difficile_v2";
 
-let state={
-nome:"",
-azienda:"",
-question:0,
-score:0,
-timer:1800,
-storico:[]
+var questions = [
+  {q:"Quale elemento non appartiene al triangolo del fuoco?",a:["Combustibile","Comburente","Calore","Pressione"],c:3},
+  {q:"Quale agente estinguente agisce principalmente per soffocamento?",a:["Acqua","Schiuma","CO2","Polvere"],c:2},
+  {q:"La classe di incendio F riguarda:",a:["Gas combustibili","Metalli combustibili","Oli e grassi da cucina","Apparecchiature elettriche"],c:2},
+  {q:"Il fenomeno di flashover indica:",a:["Accensione generalizzata dei materiali in un locale","Ritorno di fiamma in tubazione","Esplosione di una bombola","Combustione senza fiamma"],c:0},
+  {q:"Quale estintore non deve essere usato su apparecchiature elettriche in tensione?",a:["CO2","Polvere","Acqua","Gas inerte"],c:2},
+  {q:"Il numero di addetti antincendio è stabilito dal datore di lavoro sulla base di:",a:["Scelta libera del preposto","Valutazione dei rischi","Decisione dei Vigili del Fuoco","Parere del RLS"],c:1},
+  {q:"La classe B comprende incendi di:",a:["Materiali solidi","Liquidi infiammabili","Gas combustibili","Metalli"],c:1},
+  {q:"Il getto dell’estintore deve essere diretto:",a:["Sopra le fiamme","Alla base delle fiamme","Sul soffitto","Verso il fumo"],c:1},
+  {q:"Qual è la prima azione corretta in caso di principio di incendio?",a:["Aprire tutte le finestre","Dare l’allarme","Usare l’ascensore","Spostare i materiali"],c:1},
+  {q:"La durata media di scarica di un estintore portatile è circa:",a:["10 secondi","1 minuto","5 minuti","15 minuti"],c:0},
+  {q:"In presenza di fumo durante l’esodo bisogna:",a:["Correre in piedi","Abbassarsi","Rientrare a prendere gli effetti personali","Usare l’ascensore"],c:1},
+  {q:"Il numero unico di emergenza è:",a:["113","118","112","117"],c:2},
+  {q:"Le vie di esodo devono essere:",a:["Usate come deposito se temporaneo","Libere e segnalate","Chiuse per evitare accessi indesiderati","Aperte solo agli addetti"],c:1},
+  {q:"La classe C riguarda incendi di:",a:["Gas","Solidi combustibili","Oli da cucina","Metalli"],c:0},
+  {q:"Dopo lo spegnimento di un principio di incendio bisogna:",a:["Andare via subito","Controllare possibili riaccensioni","Riavviare subito gli impianti","Togliere i cartelli di emergenza"],c:1},
+  {q:"La CO2 è particolarmente adatta su:",a:["Quadri elettrici","Legno e carta all’aperto","Tessuti in deposito","Carbone"],c:0},
+  {q:"Quando si deve evacuare?",a:["Solo a fine turno","Quando viene dato l’ordine di evacuazione","Quando si vuole","Solo se c’è fumo nero"],c:1},
+  {q:"Un comportamento corretto di prevenzione è:",a:["Lasciare liberi estintori e uscite","Ostruire le uscite se serve spazio","Usare prese multiple sovraccariche","Accumulare cartoni vicino ai quadri"],c:0},
+  {q:"L’obiettivo principale della prevenzione incendi è:",a:["Evitare solo sanzioni","Ridurre probabilità e conseguenze di un incendio","Eliminare i DPI","Aumentare i tempi di lavoro"],c:1},
+  {q:"Il piano di emergenza deve essere conosciuto da:",a:["Solo datore di lavoro","Solo addetti antincendio","Tutti i lavoratori","Solo manutentori"],c:2}
+];
+
+var state = {
+  nome: "",
+  azienda: "",
+  question: 0,
+  score: 0,
+  timeLeft: 1800,
+  finished: false
+};
+
+var timerRef = null;
+
+function loadHistory(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE) || "[]");
+  }catch(e){
+    return [];
+  }
 }
 
-const questions=[
+function saveHistory(data){
+  localStorage.setItem(STORAGE, JSON.stringify(data));
+}
 
-{q:"Quale estintore usare su quadri elettrici?",a:["Acqua","CO2","Schiuma","Sabbia"],c:1},
-
-{q:"Classe A riguarda:",a:["Gas","Solidi","Liquidi","Metalli"],c:1},
-
-{q:"Classe B riguarda:",a:["Liquidi infiammabili","Legno","Carta","Tessuti"],c:0},
-
-{q:"Classe C riguarda:",a:["Gas","Carta","Olio","Plastica"],c:0},
-
-{q:"Triangolo del fuoco:",a:["Combustibile comburente calore","Fumo aria acqua","Gas acqua scintilla","Cenere calore aria"],c:0},
-
-{q:"Prima di usare estintore:",a:["Togliere sicura","Capovolgere","Aprire","Scuotere"],c:0},
-
-{q:"Il getto va diretto:",a:["Sul fumo","Alla base fiamme","In alto","Sul soffitto"],c:1},
-
-{q:"Prima azione incendio:",a:["Dare allarme","Aprire porte","Scappare","Spegnere luce"],c:0},
-
-{q:"Ascensore incendio:",a:["Usarlo","Non usarlo","Solo capi","Solo emergenza"],c:1},
-
-{q:"Durata estintore:",a:["10 secondi","5 minuti","1 ora","30 minuti"],c:0},
-
-{q:"Fumo:",a:["Correre","Abbassarsi","Saltare","Aprire finestre"],c:1},
-
-{q:"Vie esodo:",a:["Libere","Chiuse","Bloccate","Occupate"],c:0},
-
-{q:"Numero emergenza:",a:["113","118","112","117"],c:2},
-
-{q:"Piano emergenza:",a:["Solo capo","Solo antincendio","Tutti","Solo manutentori"],c:2},
-
-{q:"Dopo spegnimento:",a:["Andare via","Controllare riaccensione","Accendere luci","Aprire finestre"],c:1},
-
-{q:"CO2 utile su:",a:["Quadri elettrici","Legno","Carta","Tessuti"],c:0},
-
-{q:"Evacuazione:",a:["Quando voglio","Ordine emergenza","Fine turno","Solo fumo"],c:1},
-
-{q:"Buona prevenzione:",a:["Uscite libere","Uscite bloccate","Cartoni vicino quadro","Prese piene"],c:0},
-
-{q:"Prevenzione serve per:",a:["Multe","Ridurre rischio","Lavorare meno","Eliminare DPI"],c:1},
-
-{q:"Estintore acqua su elettrico:",a:["Si","No","Solo poco","Dipende"],c:1}
-
-]
-
-let timer
+function updateTimerDisplay(){
+  var m = String(Math.floor(state.timeLeft / 60)).padStart(2, "0");
+  var s = String(state.timeLeft % 60).padStart(2, "0");
+  document.getElementById("timer").innerHTML = m + ":" + s;
+}
 
 function startQuiz(){
+  var nome = document.getElementById("nome").value.trim();
+  var azienda = document.getElementById("azienda").value.trim();
 
-state.nome=document.getElementById("nome").value
-state.azienda=document.getElementById("azienda").value
+  if(!nome || !azienda){
+    alert("Inserisci nome e azienda");
+    return;
+  }
 
-if(!state.nome||!state.azienda){
-alert("Inserisci nome e azienda")
-return
-}
+  clearInterval(timerRef);
 
-state.question=0
-state.score=0
-state.timer=1800
+  state.nome = nome;
+  state.azienda = azienda;
+  state.question = 0;
+  state.score = 0;
+  state.timeLeft = 1800;
+  state.finished = false;
 
-document.getElementById("quiz").style.display="block"
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("adminPanel").classList.add("hidden");
 
-timer=setInterval(()=>{
+  updateTimerDisplay();
 
-state.timer--
+  timerRef = setInterval(function(){
+    state.timeLeft--;
+    updateTimerDisplay();
 
-let m=Math.floor(state.timer/60)
-let s=state.timer%60
+    if(state.timeLeft <= 0){
+      finishQuiz(true);
+    }
+  }, 1000);
 
-document.getElementById("timer").innerHTML=
-String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")
-
-if(state.timer<=0){
-finishQuiz()
-}
-
-},1000)
-
-renderQuestion()
-
+  renderQuestion();
 }
 
 function renderQuestion(){
+  if(state.question >= questions.length){
+    finishQuiz(false);
+    return;
+  }
 
-if(state.question>=questions.length){
-finishQuiz()
-return
+  var q = questions[state.question];
+  var html = "";
+  html += '<div class="question-box">';
+  html += '<div class="question">' + q.q + '</div>';
+
+  for(var i = 0; i < q.a.length; i++){
+    html += '<button class="answer" onclick="answerQuestion(' + i + ')">' + q.a[i] + '</button>';
+  }
+
+  html += '<div id="feedback" class="feedback hidden"></div>';
+  html += '<div class="small">Domanda ' + (state.question + 1) + ' di ' + questions.length + '</div>';
+  html += '</div>';
+
+  document.getElementById("quiz").innerHTML = html;
 }
 
-let q=questions[state.question]
+function answerQuestion(index){
+  if(state.finished) return;
 
-let html=`<div class="question">${q.q}</div>`
+  var q = questions[state.question];
+  var buttons = document.querySelectorAll(".answer");
 
-q.a.forEach((ans,i)=>{
+  for(var i = 0; i < buttons.length; i++){
+    buttons[i].disabled = true;
 
-html+=`<button class="answer" onclick="answer(${i})">${ans}</button>`
+    if(i === q.c){
+      buttons[i].classList.add("correct");
+    }
 
-})
+    if(i === index && i !== q.c){
+      buttons[i].classList.add("wrong");
+    }
+  }
 
-html+=`<div id="feedback" class="feedback"></div>`
-html+=`<p>Domanda ${state.question+1} di ${questions.length}</p>`
+  if(index === q.c){
+    state.score++;
+  }
 
-document.getElementById("quiz").innerHTML=html
-
+  var feedback = document.getElementById("feedback");
+  feedback.classList.remove("hidden");
+  feedback.innerHTML =
+    '<div><strong>' + (index === q.c ? 'Risposta corretta ✅' : 'Risposta errata ❌') + '</strong></div>' +
+    '<div style="margin-top:8px;">Risposta corretta: <strong>' + q.a[q.c] + '</strong></div>' +
+    '<div style="margin-top:12px;"><button class="start" onclick="nextQuestion()">Prossima domanda</button></div>';
 }
 
-function answer(i){
-
-let q=questions[state.question]
-
-let buttons=document.querySelectorAll(".answer")
-
-buttons.forEach((b,index)=>{
-
-b.disabled=true
-
-if(index===q.c) b.classList.add("correct")
-
-if(index===i && i!==q.c) b.classList.add("wrong")
-
-})
-
-if(i===q.c) state.score++
-
-document.getElementById("feedback").innerHTML=
-
-i===q.c ?
-"Risposta corretta ✅"
-:
-"Risposta errata ❌<br>Corretta: "+q.a[q.c]
-
-setTimeout(()=>{
-
-state.question++
-renderQuestion()
-
-},1500)
-
+function nextQuestion(){
+  state.question++;
+  renderQuestion();
 }
 
-function finishQuiz(){
+function finishQuiz(timeExpired){
+  if(state.finished) return;
 
-clearInterval(timer)
+  state.finished = true;
+  clearInterval(timerRef);
 
-let pct=Math.round((state.score/questions.length)*100)
+  var pct = Math.round((state.score / questions.length) * 100);
+  var esito = pct >= PASS ? "IDONEO ✅" : "NON IDONEO ❌";
 
-let esito=pct>=PASS?"IDONEO":"NON IDONEO"
+  var history = loadHistory();
+  history.push({
+    data: new Date().toLocaleString("it-IT"),
+    nome: state.nome,
+    azienda: state.azienda,
+    punteggio: state.score,
+    totale: questions.length,
+    percentuale: pct,
+    esito: esito
+  });
+  saveHistory(history);
 
-state.storico.push({
-nome:state.nome,
-azienda:state.azienda,
-punteggio:state.score,
-percentuale:pct,
-esito:esito
-})
-
-localStorage.setItem("quiz",JSON.stringify(state.storico))
-
-document.getElementById("quiz").innerHTML=""
-document.getElementById("result").innerHTML=
-
-`<h2>Quiz completato</h2>
-<p>Punteggio ${state.score}/${questions.length}</p>
-<p>${pct}%</p>
-<h3>${esito}</h3>`
-
-renderAdmin()
-
+  document.getElementById("quiz").innerHTML = "";
+  document.getElementById("result").innerHTML =
+    "<h2>" + (timeExpired ? "Tempo scaduto" : "Quiz completato") + "</h2>" +
+    "<p>Punteggio: <strong>" + state.score + " / " + questions.length + "</strong></p>" +
+    "<p>Percentuale: <strong>" + pct + "%</strong></p>" +
+    "<h3>" + esito + "</h3>";
 }
 
-function toggleAdmin(){
+function adminLogin(){
+  var pass = prompt("Inserisci password admin");
 
-let a=document.getElementById("admin")
-
-if(a.style.display==="none"){
-a.style.display="block"
-renderAdmin()
-}else{
-a.style.display="none"
-}
-
+  if(pass === ADMIN_PASSWORD){
+    document.getElementById("adminPanel").classList.remove("hidden");
+    renderAdmin();
+  } else {
+    alert("Password errata");
+  }
 }
 
 function renderAdmin(){
+  var data = loadHistory();
+  var box = document.getElementById("adminContent");
 
-let data=JSON.parse(localStorage.getItem("quiz")||"[]")
+  if(data.length === 0){
+    box.innerHTML = "Nessun risultato";
+    return;
+  }
 
-if(data.length===0){
-document.getElementById("admin").innerHTML="Nessun risultato"
-return
+  var html = "";
+  html += "<table>";
+  html += "<tr><th>Data</th><th>Nome</th><th>Azienda</th><th>Punteggio</th><th>%</th><th>Esito</th></tr>";
+
+  for(var i = data.length - 1; i >= 0; i--){
+    html += "<tr>";
+    html += "<td>" + data[i].data + "</td>";
+    html += "<td>" + data[i].nome + "</td>";
+    html += "<td>" + data[i].azienda + "</td>";
+    html += "<td>" + data[i].punteggio + "/" + data[i].totale + "</td>";
+    html += "<td>" + data[i].percentuale + "%</td>";
+    html += "<td>" + data[i].esito + "</td>";
+    html += "</tr>";
+  }
+
+  html += "</table>";
+  box.innerHTML = html;
 }
 
-let html="<table><tr><th>Nome</th><th>Azienda</th><th>Punteggio</th><th>%</th><th>Esito</th></tr>"
-
-data.forEach(r=>{
-
-html+=`<tr>
-<td>${r.nome}</td>
-<td>${r.azienda}</td>
-<td>${r.punteggio}</td>
-<td>${r.percentuale}</td>
-<td>${r.esito}</td>
-</tr>`
-
-})
-
-html+="</table>"
-
-document.getElementById("admin").innerHTML=html
-
+function closeAdmin(){
+  document.getElementById("adminPanel").classList.add("hidden");
 }
 
+function clearResults(){
+  var ok = confirm("Vuoi cancellare tutti i risultati?");
+  if(!ok) return;
+  localStorage.removeItem(STORAGE);
+  renderAdmin();
+}
+
+updateTimerDisplay();
 </script>
 
 </body>
