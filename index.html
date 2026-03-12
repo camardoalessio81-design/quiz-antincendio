@@ -1,9 +1,4 @@
 <!DOCTYPE html>
-  if(index === q.c) state.score++;
-  saveState();
-  const fb = document.getElementById('feedback');
-  fb.classList.remove('hidden');
-  fb.innerHTML = `<div><strong>${index===q.c?'Risposta corretta ✅':'Risposta errata ❌'}</strong></div><div style="margin-top:8px">Risposta corretta: <strong>${esc(q.a[q.c])}</strong></div><div class="nav no-print" style="margin-top:12px"><button class="primary" onclick="nextQuestion()">Prossima domanda</button></div>`;
 }
 
 function nextQuestion(){
@@ -15,7 +10,7 @@ function nextQuestion(){
 function finishQuiz(timeExpired){
   if(state.quizFinished) return;
   state.quizFinished = true;
-  clearInterval(state.timerRef);
+  clearInterval(timerRef);
   const pct = Math.round((state.score / questions.length) * 100);
   const passed = pct >= PASS_MARK;
   document.getElementById('quizBox').innerHTML = '';
@@ -23,9 +18,7 @@ function finishQuiz(timeExpired){
   state.storico.push({data:new Date().toLocaleString('it-IT'), nome:state.nome, azienda:state.azienda, punteggio:state.score, totale:questions.length, percentuale:pct, esito: passed ? 'IDONEO' : 'NON IDONEO'});
   saveState();
   renderAdmin();
-  if(passed){
-    document.getElementById('signatureCard').classList.remove('hidden');
-  }
+  if(passed){ document.getElementById('signatureCard').classList.remove('hidden'); }
 }
 
 function renderCertificate(){
@@ -45,6 +38,17 @@ function renderAdmin(){
   admin.innerHTML = '<table><thead><tr><th>Data</th><th>Nome</th><th>Azienda</th><th>Punteggio</th><th>%</th><th>Esito</th></tr></thead><tbody>' + state.storico.slice().reverse().map(r=>`<tr><td>${esc(r.data)}</td><td>${esc(r.nome)}</td><td>${esc(r.azienda)}</td><td>${r.punteggio}/${r.totale}</td><td>${r.percentuale}%</td><td>${esc(r.esito)}</td></tr>`).join('') + '</tbody></table>';
 }
 
+function toggleAdmin(){
+  const card = document.getElementById('adminCard');
+  card.classList.toggle('hidden');
+  renderAdmin();
+}
+
+function resetAll(){
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
 const canvas = document.getElementById('signatureCanvas');
 const ctx = canvas.getContext('2d');
 let drawing = false;
@@ -60,6 +64,7 @@ canvas.addEventListener('mousedown',startDraw); canvas.addEventListener('mousemo
 canvas.addEventListener('touchstart',startDraw,{passive:false}); canvas.addEventListener('touchmove',draw,{passive:false}); canvas.addEventListener('touchend',stopDraw,{passive:false});
 
 document.getElementById('startCourseBtn').addEventListener('click', startCourse);
+document.getElementById('toggleAdminBtn').addEventListener('click', toggleAdmin);
 document.getElementById('resetBtn').addEventListener('click', ()=>{ if(confirm('Vuoi cancellare tutti i dati locali del corso?')) resetAll(); });
 document.getElementById('openQuizBtn').addEventListener('click', startQuiz);
 document.getElementById('prevModuleBtn').addEventListener('click', ()=>openModule(Math.max(0, state.currentModule-1)));
@@ -71,7 +76,14 @@ document.getElementById('saveSignBtn').addEventListener('click', saveSignature);
 loadState();
 if(state.nome) document.getElementById('nome').value = state.nome;
 if(state.azienda) document.getElementById('azienda').value = state.azienda;
-if(state.nome && state.azienda){ document.getElementById('dashboardCard').classList.remove('hidden'); document.getElementById('adminCard').classList.remove('hidden'); renderModules(); openModule(state.currentModule || 0); renderAdmin(); if(state.signature) renderCertificate(); }
+renderAdmin();
+if(state.nome && state.azienda){
+  document.getElementById('dashboardCard').classList.remove('hidden');
+  document.getElementById('contentCard').classList.remove('hidden');
+  renderModules();
+  openModule(state.currentModule || 0);
+  if(state.signature) renderCertificate();
+}
 </script>
 </body>
 </html>
