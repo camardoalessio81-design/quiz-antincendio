@@ -1,12 +1,24 @@
 <!DOCTYPE html>
+    if(i === index && i !== q.c) btn.classList.add('ko');
+  });
+  if(index === q.c){ state.score++; }
+  saveState();
+  const fb = document.getElementById('feedback');
+  fb.classList.remove('hidden');
+  fb.innerHTML = '<div><strong>' + (index === q.c ? 'Risposta corretta ✅' : 'Risposta errata ❌') + '</strong></div>' +
+                 '<div style="margin-top:8px">Risposta corretta: <strong>' + escapeHtml(q.a[q.c]) + '</strong></div>' +
+                 '<div style="margin-top:12px"><button class="primary" id="nextBtn">Prossima domanda</button></div>';
+  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
 }
-
 function nextQuestion(){
   state.currentQuestion++;
   saveState();
-  if(state.currentQuestion < questions.length) renderQuestion(); else finishQuiz(false);
+  if(state.currentQuestion < questions.length){
+    renderQuestion();
+  } else {
+    finishQuiz(false);
+  }
 }
-
 function finishQuiz(timeExpired){
   if(state.quizFinished) return;
   state.quizFinished = true;
@@ -14,76 +26,64 @@ function finishQuiz(timeExpired){
   const pct = Math.round((state.score / questions.length) * 100);
   const passed = pct >= PASS_MARK;
   document.getElementById('quizBox').innerHTML = '';
-  document.getElementById('quizResult').innerHTML = `<div class="feedback"><p>${timeExpired ? '⏰ Tempo scaduto.' : 'Quiz completato.'}</p><p>Punteggio: <strong>${state.score} / ${questions.length}</strong></p><p>Percentuale: <strong>${pct}%</strong></p><p>Esito: <strong>${passed ? 'IDONEO ✅' : 'NON IDONEO ❌'}</strong></p></div>`;
-  state.storico.push({data:new Date().toLocaleString('it-IT'), nome:state.nome, azienda:state.azienda, punteggio:state.score, totale:questions.length, percentuale:pct, esito: passed ? 'IDONEO' : 'NON IDONEO'});
+  document.getElementById('quizResult').innerHTML = '<div class="feedback">' +
+    '<p>' + (timeExpired ? '⏰ Tempo scaduto.' : 'Quiz completato.') + '</p>' +
+    '<p>Punteggio: <strong>' + state.score + ' / ' + questions.length + '</strong></p>' +
+    '<p>Percentuale: <strong>' + pct + '%</strong></p>' +
+    '<p>Esito: <strong>' + (passed ? 'IDONEO ✅' : 'NON IDONEO ❌') + '</strong></p>' +
+    '</div>';
+  state.storico.push({
+    data:new Date().toLocaleString('it-IT'),
+    nome:state.nome,
+    azienda:state.azienda,
+    punteggio:state.score,
+    totale:questions.length,
+    percentuale:pct,
+    esito: passed ? 'IDONEO' : 'NON IDONEO'
+  });
   saveState();
   renderAdmin();
-  if(passed){ document.getElementById('signatureCard').classList.remove('hidden'); }
 }
-
-function renderCertificate(){
-  const pct = Math.round((state.score / questions.length) * 100);
-  document.getElementById('certificateCard').classList.remove('hidden');
-  document.getElementById('certName').textContent = state.nome;
-  document.getElementById('certCompany').textContent = state.azienda;
-  document.getElementById('certScore').textContent = `Esito verifica finale: ${state.score}/${questions.length} - ${pct}%`;
-  document.getElementById('certDate').textContent = `Data: ${new Date().toLocaleDateString('it-IT')}`;
-  document.getElementById('certSignatureWrap').innerHTML = state.signature ? `<div><p>Firma partecipante</p><img src="${state.signature}" alt="Firma" style="max-width:320px;width:100%"></div>` : '';
-  saveState();
-}
-
 function renderAdmin(){
-  const admin = document.getElementById('adminTable');
-  if(!state.storico.length){ admin.innerHTML = '<p class="muted">Nessun risultato salvato.</p>'; return; }
-  admin.innerHTML = '<table><thead><tr><th>Data</th><th>Nome</th><th>Azienda</th><th>Punteggio</th><th>%</th><th>Esito</th></tr></thead><tbody>' + state.storico.slice().reverse().map(r=>`<tr><td>${esc(r.data)}</td><td>${esc(r.nome)}</td><td>${esc(r.azienda)}</td><td>${r.punteggio}/${r.totale}</td><td>${r.percentuale}%</td><td>${esc(r.esito)}</td></tr>`).join('') + '</tbody></table>';
+  const box = document.getElementById('adminTable');
+  if(!state.storico.length){
+    box.innerHTML = '<p class="muted">Nessun risultato salvato.</p>';
+    return;
+  }
+  let html = '<table><thead><tr><th>Data</th><th>Nome</th><th>Azienda</th><th>Punteggio</th><th>%</th><th>Esito</th></tr></thead><tbody>';
+  state.storico.slice().reverse().forEach(function(r){
+    html += '<tr>' +
+      '<td>' + escapeHtml(r.data) + '</td>' +
+      '<td>' + escapeHtml(r.nome) + '</td>' +
+      '<td>' + escapeHtml(r.azienda) + '</td>' +
+      '<td>' + r.punteggio + '/' + r.totale + '</td>' +
+      '<td>' + r.percentuale + '%</td>' +
+      '<td>' + escapeHtml(r.esito) + '</td>' +
+      '</tr>';
+  });
+  html += '</tbody></table>';
+  box.innerHTML = html;
 }
-
 function toggleAdmin(){
-  const card = document.getElementById('adminCard');
-  card.classList.toggle('hidden');
+  document.getElementById('adminCard').classList.toggle('hidden');
   renderAdmin();
 }
-
 function resetAll(){
   localStorage.removeItem(STORAGE_KEY);
   location.reload();
 }
 
-const canvas = document.getElementById('signatureCanvas');
-const ctx = canvas.getContext('2d');
-let drawing = false;
-ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
-function pos(e){ const r = canvas.getBoundingClientRect(); return e.touches ? {x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top} : {x:e.clientX-r.left,y:e.clientY-r.top}; }
-function startDraw(e){ e.preventDefault(); drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
-function draw(e){ if(!drawing) return; e.preventDefault(); const p = pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); }
-function stopDraw(e){ if(e) e.preventDefault(); drawing = false; }
-function clearSignature(){ ctx.clearRect(0,0,canvas.width,canvas.height); document.getElementById('signMsg').textContent=''; }
-function isBlank(){ const px = ctx.getImageData(0,0,canvas.width,canvas.height).data; for(let i=0;i<px.length;i+=4){ if(px[i]||px[i+1]||px[i+2]||px[i+3]) return false; } return true; }
-function saveSignature(){ if(isBlank()){ alert('Firma prima nel riquadro bianco.'); return; } state.signature = canvas.toDataURL('image/png'); saveState(); document.getElementById('signMsg').textContent = 'Firma salvata correttamente.'; renderCertificate(); }
-canvas.addEventListener('mousedown',startDraw); canvas.addEventListener('mousemove',draw); canvas.addEventListener('mouseup',stopDraw); canvas.addEventListener('mouseleave',stopDraw);
-canvas.addEventListener('touchstart',startDraw,{passive:false}); canvas.addEventListener('touchmove',draw,{passive:false}); canvas.addEventListener('touchend',stopDraw,{passive:false});
-
-document.getElementById('startCourseBtn').addEventListener('click', startCourse);
-document.getElementById('toggleAdminBtn').addEventListener('click', toggleAdmin);
-document.getElementById('resetBtn').addEventListener('click', ()=>{ if(confirm('Vuoi cancellare tutti i dati locali del corso?')) resetAll(); });
-document.getElementById('openQuizBtn').addEventListener('click', startQuiz);
-document.getElementById('prevModuleBtn').addEventListener('click', ()=>openModule(Math.max(0, state.currentModule-1)));
-document.getElementById('nextModuleBtn').addEventListener('click', ()=>openModule(Math.min(modules.length-1, state.currentModule+1)));
-document.getElementById('completeModuleBtn').addEventListener('click', completeCurrentModule);
-document.getElementById('clearSignBtn').addEventListener('click', clearSignature);
-document.getElementById('saveSignBtn').addEventListener('click', saveSignature);
+document.getElementById('startBtn').addEventListener('click', startQuiz);
+document.getElementById('adminBtn').addEventListener('click', toggleAdmin);
+document.getElementById('resetBtn').addEventListener('click', function(){
+  if(confirm('Vuoi cancellare tutti i dati salvati?')) resetAll();
+});
 
 loadState();
 if(state.nome) document.getElementById('nome').value = state.nome;
 if(state.azienda) document.getElementById('azienda').value = state.azienda;
+renderTimer();
 renderAdmin();
-if(state.nome && state.azienda){
-  document.getElementById('dashboardCard').classList.remove('hidden');
-  document.getElementById('contentCard').classList.remove('hidden');
-  renderModules();
-  openModule(state.currentModule || 0);
-  if(state.signature) renderCertificate();
-}
 </script>
 </body>
 </html>
