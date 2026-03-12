@@ -1,178 +1,718 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<title>Quiz Antincendio</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Antincendio</title>
 
-<style>
+  <style>
+    *{
+      box-sizing:border-box;
+    }
 
-body{
-font-family:Arial;
-background:#0f1a2b;
-color:white;
-text-align:center;
-padding:40px;
-}
+    body{
+      margin:0;
+      padding:20px;
+      font-family:Arial, sans-serif;
+      background:#0f1a2b;
+      color:#ffffff;
+      text-align:center;
+    }
 
-.container{
-max-width:600px;
-margin:auto;
-background:#16253f;
-padding:30px;
-border-radius:12px;
-}
+    .container{
+      max-width:800px;
+      margin:0 auto;
+      background:#16253f;
+      border-radius:14px;
+      padding:30px 20px;
+      box-shadow:0 0 20px rgba(0,0,0,0.25);
+    }
 
-input{
-width:80%;
-padding:10px;
-margin:10px;
-border-radius:6px;
-border:none;
-}
+    h1{
+      margin-top:0;
+      font-size:32px;
+    }
 
-button{
-padding:12px 25px;
-margin:10px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-size:16px;
-}
+    h2,h3{
+      margin-bottom:10px;
+    }
 
-.start{
-background:#ff6b00;
-color:white;
-}
+    input{
+      width:90%;
+      max-width:420px;
+      padding:12px;
+      margin:8px 0;
+      border:none;
+      border-radius:8px;
+      font-size:16px;
+    }
 
-.question{
-margin-top:20px;
-}
+    button{
+      padding:12px 22px;
+      margin:8px 5px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:16px;
+      font-weight:bold;
+    }
 
-.timer{
-font-size:26px;
-margin-top:10px;
-color:#ffc107;
-}
+    button:hover{
+      opacity:0.92;
+    }
 
-.result{
-margin-top:20px;
-font-size:20px;
-}
+    .start{
+      background:#ff6b00;
+      color:#fff;
+    }
 
-</style>
+    .answer{
+      display:block;
+      width:92%;
+      max-width:560px;
+      margin:10px auto;
+      background:#29456f;
+      color:#fff;
+    }
 
+    .answer:hover{
+      background:#355887;
+    }
+
+    .admin{
+      background:#f5a300;
+      color:#111;
+    }
+
+    .danger{
+      background:#c62828;
+      color:#fff;
+    }
+
+    .secondary{
+      background:#607d8b;
+      color:#fff;
+    }
+
+    .success{
+      background:#2e7d32;
+      color:#fff;
+    }
+
+    .timer{
+      font-size:30px;
+      font-weight:bold;
+      color:#ffc107;
+      margin:18px 0;
+    }
+
+    .question-box{
+      margin-top:20px;
+      padding:20px;
+      background:#203556;
+      border-radius:12px;
+    }
+
+    .question-title{
+      font-size:24px;
+      margin-bottom:18px;
+    }
+
+    .progress{
+      margin-top:12px;
+      font-size:16px;
+      color:#dbe7f5;
+    }
+
+    .result{
+      margin-top:20px;
+      font-size:22px;
+      line-height:1.6;
+    }
+
+    .info{
+      margin-top:15px;
+      font-size:17px;
+      color:#d9e6f5;
+    }
+
+    .hidden{
+      display:none;
+    }
+
+    img{
+      margin-top:15px;
+      background:#fff;
+      padding:8px;
+      border-radius:10px;
+      max-width:200px;
+      width:100%;
+      height:auto;
+    }
+
+    .firma-box{
+      margin-top:30px;
+      padding:20px;
+      background:#203556;
+      border-radius:12px;
+    }
+
+    canvas{
+      background:#ffffff;
+      border-radius:10px;
+      border:2px solid #d9d9d9;
+      max-width:100%;
+      touch-action:none;
+    }
+
+    .firma-msg{
+      margin-top:10px;
+      font-size:16px;
+      color:#c8f7c5;
+      min-height:24px;
+    }
+
+    .admin-panel{
+      margin-top:30px;
+      padding:20px;
+      background:#203556;
+      border-radius:12px;
+      text-align:left;
+      overflow-x:auto;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:15px;
+      background:#1a2d4a;
+      color:#fff;
+    }
+
+    th, td{
+      border:1px solid #3e5d86;
+      padding:10px;
+      text-align:left;
+      font-size:14px;
+    }
+
+    th{
+      background:#29456f;
+    }
+
+    .small{
+      font-size:14px;
+      color:#cbd5e1;
+      margin-top:5px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:bold;
+      margin-top:10px;
+    }
+
+    .ok{
+      background:#1b5e20;
+      color:#fff;
+    }
+
+    .ko{
+      background:#8e0000;
+      color:#fff;
+    }
+
+    .footer-note{
+      margin-top:18px;
+      font-size:13px;
+      color:#b7c7dd;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
+  <div class="container">
+    <h1>🔥 Quiz Antincendio</h1>
 
-<h1>🔥 Quiz Antincendio</h1>
+    <div id="startSection">
+      <input id="nome" type="text" placeholder="Nome e Cognome">
+      <br>
+      <input id="azienda" type="text" placeholder="Azienda">
 
-<input id="nome" placeholder="Nome e Cognome">
-<br>
+      <div class="timer" id="timer">30:00</div>
 
-<input id="azienda" placeholder="Azienda">
+      <button class="start" id="startBtn" onclick="startQuiz()">INIZIA QUIZ</button>
 
-<div class="timer" id="timer">30:00</div>
+      <div>
+        <img id="qr" alt="QR Code quiz">
+      </div>
 
-<button class="start" onclick="startQuiz()">INIZIA QUIZ</button>
+      <div class="small">Scansiona il QR per aprire il quiz</div>
+    </div>
 
-<br><br>
+    <div class="info" id="userInfo"></div>
 
-<img id="qr" width="200">
+    <div id="quiz"></div>
 
-<div id="quiz"></div>
+    <div class="result" id="result"></div>
 
-<div class="result" id="result"></div>
+    <div class="firma-box hidden" id="firmaSection">
+      <h3>Firma partecipante</h3>
+      <canvas id="firma" width="500" height="200"></canvas>
+      <br>
+      <button class="secondary" onclick="pulisciFirma()">Cancella firma</button>
+      <button class="success" onclick="salvaFirma()">Salva firma</button>
+      <div class="firma-msg" id="firmaOk"></div>
+    </div>
 
-</div>
+    <div style="margin-top:25px;">
+      <button class="admin" onclick="toggleAdmin()">PANNELLO ADMIN</button>
+    </div>
 
-<script>
+    <div class="admin-panel hidden" id="adminPanel">
+      <h3>Risultati salvati</h3>
+      <div id="tabellaRisultati"></div>
+      <button class="danger" onclick="resetRisultati()">Cancella tutti i risultati</button>
+    </div>
 
-const linkQuiz="https://camardoalessio81-design.github.io/quiz-antincendio/";
+    <div class="footer-note">
+      I risultati vengono salvati localmente nel browser del dispositivo.
+    </div>
+  </div>
 
-document.getElementById("qr").src =
-"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+linkQuiz;
+  <script>
+    const linkQuiz = "https://camardoalessio81-design.github.io/quiz-antincendio/";
 
-let domande=[
-{
-q:"Quale estintore si usa per incendi elettrici?",
-a:["Acqua","CO2","Schiuma"],
-c:1
-},
-{
-q:"Cosa significa R.E.I?",
-a:["Resistenza fuoco","Ritardo incendio","Protezione fumo"],
-c:0
-},
-{
-q:"Cosa fare prima di usare un estintore?",
-a:["Avvicinarsi al fuoco","Togliere sicura","Scuotere"],
-c:1
-}
-];
+    const qrImg = document.getElementById("qr");
+    qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(linkQuiz);
 
-let corrente=0;
-let punteggio=0;
+    const domande = [
+      {
+        q:"Quale estintore si usa per incendi elettrici?",
+        a:["Acqua","CO2","Schiuma","Sabbia"],
+        c:1
+      },
+      {
+        q:"Cosa significa REI?",
+        a:["Ritardo Estinzione Interna","Resistenza al fuoco","Rischio Evacuazione Incendio","Registro Emergenza Interno"],
+        c:1
+      },
+      {
+        q:"Cosa bisogna fare prima di usare un estintore portatile?",
+        a:["Togliere la sicura","Scuoterlo forte","Capovolgerlo","Aprirlo"],
+        c:0
+      },
+      {
+        q:"La classe A riguarda incendi di:",
+        a:["Metalli","Gas","Solidi combustibili","Oli da cucina"],
+        c:2
+      },
+      {
+        q:"La classe B riguarda incendi di:",
+        a:["Liquidi infiammabili","Carta e legno","Apparecchiature elettriche","Tessuti"],
+        c:0
+      },
+      {
+        q:"La classe C riguarda incendi di:",
+        a:["Solidi","Gas","Metalli","Oli vegetali"],
+        c:1
+      },
+      {
+        q:"Il triangolo del fuoco è formato da:",
+        a:["Fuoco, fumo, cenere","Combustibile, comburente, calore","Acqua, aria, fiamma","Pressione, scintilla, gas"],
+        c:1
+      },
+      {
+        q:"Dove va diretto il getto dell'estintore?",
+        a:["Sopra le fiamme","Alla base delle fiamme","Verso il soffitto","Sul fumo"],
+        c:1
+      },
+      {
+        q:"Qual è la prima azione in caso di principio di incendio?",
+        a:["Dare l'allarme","Aprire le finestre","Spegnere tutto da soli","Nascondersi"],
+        c:0
+      },
+      {
+        q:"L'estintore ad acqua va usato su impianti elettrici in tensione?",
+        a:["Sì, sempre","No","Solo per pochi secondi","Solo se piccolo quadro"],
+        c:1
+      },
+      {
+        q:"Quanto dura mediamente la scarica di un estintore portatile?",
+        a:["Circa 10 secondi","Circa 1 minuto","Circa 5 minuti","Circa 30 minuti"],
+        c:0
+      },
+      {
+        q:"In presenza di fumo, come bisogna muoversi?",
+        a:["Correndo in piedi","Strisciando o abbassandosi","Saltando","Restando fermi"],
+        c:1
+      },
+      {
+        q:"L'ascensore in caso di incendio:",
+        a:["Si usa per fare prima","Non si deve usare","Si usa solo se vuoto","Si usa solo con permesso"],
+        c:1
+      },
+      {
+        q:"L'uscita di emergenza serve per:",
+        a:["Entrare nei locali tecnici","Evacuare in sicurezza","Far passare i materiali","Accedere al deposito"],
+        c:1
+      },
+      {
+        q:"Chi deve conoscere il piano di emergenza?",
+        a:["Solo il datore di lavoro","Solo gli addetti antincendio","Tutti i lavoratori","Solo il preposto"],
+        c:2
+      },
+      {
+        q:"Quando si deve evacuare?",
+        a:["Solo a fine turno","Quando viene dato l'ordine di evacuazione","Quando si vuole","Solo se c'è fumo nero"],
+        c:1
+      },
+      {
+        q:"Dopo lo spegnimento di un principio di incendio bisogna:",
+        a:["Andarsene subito","Controllare possibili riaccensioni","Chiudere tutto e basta","Spegnere le luci"],
+        c:1
+      },
+      {
+        q:"L'estintore a CO2 è particolarmente adatto per:",
+        a:["Legname all'aperto","Quadri elettrici","Tessuti bagnati","Segatura"],
+        c:1
+      },
+      {
+        q:"Il numero unico di emergenza è:",
+        a:["118","115","112","113"],
+        c:2
+      },
+      {
+        q:"Le vie di esodo devono essere:",
+        a:["Libere e segnalate","Chiuse per sicurezza","Usate come deposito","Aperte solo ai manutentori"],
+        c:0
+      }
+    ];
 
-function startQuiz(){
+    let corrente = 0;
+    let punteggio = 0;
+    let tempo = 1800;
+    let intervallo = null;
+    let quizAvviato = false;
+    let quizTerminato = false;
+    let nomePartecipante = "";
+    let aziendaPartecipante = "";
+    let firmaSalvata = "";
 
-let nome=document.getElementById("nome").value;
+    const quizDiv = document.getElementById("quiz");
+    const resultDiv = document.getElementById("result");
+    const timerDiv = document.getElementById("timer");
+    const userInfoDiv = document.getElementById("userInfo");
+    const firmaSection = document.getElementById("firmaSection");
+    const firmaOk = document.getElementById("firmaOk");
 
-if(nome==""){
-alert("Inserisci nome");
-return;
-}
+    function startQuiz(){
+      if(quizAvviato) return;
 
-mostraDomanda();
+      const nome = document.getElementById("nome").value.trim();
+      const azienda = document.getElementById("azienda").value.trim();
 
-}
+      if(nome === ""){
+        alert("Inserisci Nome e Cognome");
+        return;
+      }
 
-function mostraDomanda(){
+      if(azienda === ""){
+        alert("Inserisci Azienda");
+        return;
+      }
 
-let d=domande[corrente];
+      nomePartecipante = nome;
+      aziendaPartecipante = azienda;
 
-let html="<div class='question'><h3>"+d.q+"</h3>";
+      document.getElementById("nome").disabled = true;
+      document.getElementById("azienda").disabled = true;
+      document.getElementById("startBtn").disabled = true;
 
-for(let i=0;i<d.a.length;i++){
+      quizAvviato = true;
 
-html+="<button onclick='rispondi("+i+")'>"+d.a[i]+"</button><br>";
+      userInfoDiv.innerHTML = "Partecipante: <b>" + escapeHtml(nomePartecipante) + "</b> | Azienda: <b>" + escapeHtml(aziendaPartecipante) + "</b>";
 
-}
+      avviaTimer();
+      mostraDomanda();
+    }
 
-html+="</div>";
+    function mostraDomanda(){
+      if(corrente >= domande.length){
+        fineQuiz(false);
+        return;
+      }
 
-document.getElementById("quiz").innerHTML=html;
+      const d = domande[corrente];
 
-}
+      let html = "";
+      html += "<div class='question-box'>";
+      html += "<div class='question-title'>" + d.q + "</div>";
 
-function rispondi(i){
+      for(let i = 0; i < d.a.length; i++){
+        html += "<button class='answer' onclick='rispondi(" + i + ")'>" + d.a[i] + "</button>";
+      }
 
-if(i==domande[corrente].c){
-punteggio++;
-}
+      html += "<div class='progress'>Domanda " + (corrente + 1) + " di " + domande.length + "</div>";
+      html += "</div>";
 
-corrente++;
+      quizDiv.innerHTML = html;
+    }
 
-if(corrente<domande.length){
-mostraDomanda();
-}else{
-fineQuiz();
-}
+    function rispondi(indice){
+      if(quizTerminato) return;
 
-}
+      if(indice === domande[corrente].c){
+        punteggio++;
+      }
 
-function fineQuiz(){
+      corrente++;
 
-document.getElementById("quiz").innerHTML="";
+      if(corrente < domande.length){
+        mostraDomanda();
+      }else{
+        fineQuiz(false);
+      }
+    }
 
-document.getElementById("result").innerHTML=
-"Punteggio: "+punteggio+" / "+domande.length;
+    function avviaTimer(){
+      aggiornaTimer();
 
-}
+      intervallo = setInterval(function(){
+        tempo--;
+        aggiornaTimer();
 
-</script>
+        if(tempo <= 0){
+          clearInterval(intervallo);
+          fineQuiz(true);
+        }
+      }, 1000);
+    }
 
+    function aggiornaTimer(){
+      let minuti = Math.floor(tempo / 60);
+      let secondi = tempo % 60;
+
+      if(minuti < 10) minuti = "0" + minuti;
+      if(secondi < 10) secondi = "0" + secondi;
+
+      timerDiv.innerHTML = minuti + ":" + secondi;
+    }
+
+    function fineQuiz(scaduto){
+      if(quizTerminato) return;
+
+      quizTerminato = true;
+      clearInterval(intervallo);
+      quizDiv.innerHTML = "";
+
+      const percentuale = Math.round((punteggio / domande.length) * 100);
+      const idoneo = percentuale >= 70;
+      const esitoTesto = idoneo ? "IDONEO ✅" : "NON IDONEO ❌";
+      const classeBadge = idoneo ? "ok" : "ko";
+
+      let html = "";
+      if(scaduto){
+        html += "<div>⏰ Tempo scaduto</div>";
+      }
+
+      html += "<div>Punteggio: <b>" + punteggio + " / " + domande.length + "</b></div>";
+      html += "<div>Percentuale: <b>" + percentuale + "%</b></div>";
+      html += "<div class='badge " + classeBadge + "'>" + esitoTesto + "</div>";
+      html += "<div style='margin-top:18px;'><button class='start' onclick='location.reload()'>RIPETI QUIZ</button></div>";
+
+      resultDiv.innerHTML = html;
+      firmaSection.classList.remove("hidden");
+
+      salvaRisultato(percentuale, esitoTesto, scaduto);
+      mostraRisultati();
+    }
+
+    function salvaRisultato(percentuale, esitoTesto, scaduto){
+      const risultati = JSON.parse(localStorage.getItem("risultatiQuizAntincendio") || "[]");
+
+      const record = {
+        nome: nomePartecipante,
+        azienda: aziendaPartecipante,
+        punteggio: punteggio,
+        totale: domande.length,
+        percentuale: percentuale,
+        esito: esitoTesto,
+        scaduto: scaduto ? "Sì" : "No",
+        data: new Date().toLocaleString("it-IT"),
+        firma: ""
+      };
+
+      risultati.push(record);
+      localStorage.setItem("risultatiQuizAntincendio", JSON.stringify(risultati));
+    }
+
+    function aggiornaFirmaUltimoRecord(dataFirma){
+      const risultati = JSON.parse(localStorage.getItem("risultatiQuizAntincendio") || "[]");
+      if(risultati.length > 0){
+        risultati[risultati.length - 1].firma = dataFirma;
+        localStorage.setItem("risultatiQuizAntincendio", JSON.stringify(risultati));
+      }
+      mostraRisultati();
+    }
+
+    function toggleAdmin(){
+      const panel = document.getElementById("adminPanel");
+      panel.classList.toggle("hidden");
+      mostraRisultati();
+    }
+
+    function mostraRisultati(){
+      const risultati = JSON.parse(localStorage.getItem("risultatiQuizAntincendio") || "[]");
+      const contenitore = document.getElementById("tabellaRisultati");
+
+      if(risultati.length === 0){
+        contenitore.innerHTML = "<p>Nessun risultato salvato.</p>";
+        return;
+      }
+
+      let html = "<table>";
+      html += "<thead><tr>";
+      html += "<th>#</th>";
+      html += "<th>Data</th>";
+      html += "<th>Nome</th>";
+      html += "<th>Azienda</th>";
+      html += "<th>Punteggio</th>";
+      html += "<th>%</th>";
+      html += "<th>Esito</th>";
+      html += "<th>Tempo scaduto</th>";
+      html += "<th>Firma</th>";
+      html += "</tr></thead><tbody>";
+
+      for(let i = risultati.length - 1; i >= 0; i--){
+        const r = risultati[i];
+        html += "<tr>";
+        html += "<td>" + (i + 1) + "</td>";
+        html += "<td>" + escapeHtml(r.data) + "</td>";
+        html += "<td>" + escapeHtml(r.nome) + "</td>";
+        html += "<td>" + escapeHtml(r.azienda) + "</td>";
+        html += "<td>" + r.punteggio + " / " + r.totale + "</td>";
+        html += "<td>" + r.percentuale + "%</td>";
+        html += "<td>" + escapeHtml(r.esito) + "</td>";
+        html += "<td>" + escapeHtml(r.scaduto) + "</td>";
+        html += "<td>" + (r.firma ? "Sì" : "No") + "</td>";
+        html += "</tr>";
+      }
+
+      html += "</tbody></table>";
+      contenitore.innerHTML = html;
+    }
+
+    function resetRisultati(){
+      const conferma = confirm("Vuoi cancellare tutti i risultati salvati?");
+      if(!conferma) return;
+
+      localStorage.removeItem("risultatiQuizAntincendio");
+      mostraRisultati();
+    }
+
+    function escapeHtml(testo){
+      return testo
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    const canvas = document.getElementById("firma");
+    const ctx = canvas.getContext("2d");
+    let disegno = false;
+
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000000";
+
+    function getPosizioneCanvas(event){
+      const rect = canvas.getBoundingClientRect();
+
+      if(event.touches && event.touches.length > 0){
+        return {
+          x: event.touches[0].clientX - rect.left,
+          y: event.touches[0].clientY - rect.top
+        };
+      }else{
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top
+        };
+      }
+    }
+
+    function startFirma(event){
+      event.preventDefault();
+      disegno = true;
+      const pos = getPosizioneCanvas(event);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    }
+
+    function drawFirma(event){
+      if(!disegno) return;
+      event.preventDefault();
+      const pos = getPosizioneCanvas(event);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+
+    function stopFirma(event){
+      if(event) event.preventDefault();
+      disegno = false;
+    }
+
+    canvas.addEventListener("mousedown", startFirma);
+    canvas.addEventListener("mousemove", drawFirma);
+    canvas.addEventListener("mouseup", stopFirma);
+    canvas.addEventListener("mouseleave", stopFirma);
+
+    canvas.addEventListener("touchstart", startFirma, { passive:false });
+    canvas.addEventListener("touchmove", drawFirma, { passive:false });
+    canvas.addEventListener("touchend", stopFirma, { passive:false });
+
+    function pulisciFirma(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      firmaOk.innerHTML = "";
+      firmaSalvata = "";
+    }
+
+    function salvaFirma(){
+      if(!quizTerminato){
+        alert("La firma si salva alla fine del quiz.");
+        return;
+      }
+
+      const immagine = canvas.toDataURL("image/png");
+
+      if(isCanvasVuoto()){
+        alert("Firma prima nel riquadro bianco.");
+        return;
+      }
+
+      firmaSalvata = immagine;
+      localStorage.setItem("firmaQuizAntincendioUltima", immagine);
+      aggiornaFirmaUltimoRecord(immagine);
+      firmaOk.innerHTML = "Firma salvata correttamente ✔";
+    }
+
+    function isCanvasVuoto(){
+      const pixel = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      for(let i = 0; i < pixel.length; i += 4){
+        if(pixel[i] !== 0 || pixel[i+1] !== 0 || pixel[i+2] !== 0 || pixel[i+3] !== 0){
+          return false;
+        }
+      }
+      return true;
+    }
+
+    mostraRisultati();
+  </script>
 </body>
 </html>
